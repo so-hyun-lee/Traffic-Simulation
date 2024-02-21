@@ -13,7 +13,7 @@ public class TrafficSegment : MonoBehaviour
 
     public bool IsOnSegment(Vector3 pos)
     {
-        TrafficHeadquater headquater = GetComponentInParent<TrafficHeadquater>();
+        TrafficHeadquarter headquater = GetComponentInParent<TrafficHeadquarter>();
 
         for(int i = 0; i<Waypoints.Count-1; i++)
         {

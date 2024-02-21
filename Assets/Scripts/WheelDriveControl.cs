@@ -68,12 +68,14 @@ public class WheelDriveControl : MonoBehaviour
             {
                 var wheelshape = Instantiate(leftWheelShape);
                 wheelshape.transform.parent = wheel.transform;
-
+                wheelshape.transform.localPosition = Vector3.zero;
             }
             else if(rightWheelShape != null && wheel.transform.localPosition.x > 0)
             {
                 var wheelshape = Instantiate(rightWheelShape);
                 wheelshape.transform.parent = wheel.transform;
+                wheelshape.transform.localPosition = Vector3.zero;
+
             }
             wheel.ConfigureVehicleSubsteps(speedThreshold: 10, stepsBelowThreshold: 1, stepsAboveThreshold: 1);
         }
