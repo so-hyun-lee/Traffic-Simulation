@@ -1,10 +1,12 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor;
+using Unity.Mathematics;
 using UnityEngine;
+using UnityEditor;
 
-public class VehicleSettingEditor :Editor
+public class VehicleSettingEditor : Editor
 {
+    //íœ ì½œë¼ì´ë” ì„¸ë¶€ì„¤ì •ì„ ì•„ì˜ˆ íˆ´ì—ì„œ í•©ë‹ˆë‹¤.
     private static void SetupWheelCollider(WheelCollider collider)
     {
         collider.mass = 20f;
@@ -15,7 +17,7 @@ public class VehicleSettingEditor :Editor
 
         JointSpring jointSpring = new JointSpring();
         jointSpring.spring = 70000f;
-        jointSpring.spring = 3500f;
+        jointSpring.damper = 3500f;
         jointSpring.targetPosition = 1f;
         collider.suspensionSpring = jointSpring;
 
@@ -28,44 +30,47 @@ public class VehicleSettingEditor :Editor
         collider.forwardFriction = frictionCurve;
         collider.sidewaysFriction = frictionCurve;
     }
-
     [MenuItem("Component/TrafficTool/Setup Vehicle")]
     private static void SetupVehicle()
     {
         EditorHelper.SetUndoGroup("Setup Vehicle");
-        //ÇöÀç Â÷¸¦ ¼±ÅÃÇß´Ù¸é(¾ÆÁ÷ ¼¼ÆÃ x)
+        //í˜„ì¬ ì°¨ë¥¼ ì„ íƒí–ˆë‹¤ë©´.(ì•„ì§ ì„¸íŒ…ë˜ì§€ ì•Šì€)
         GameObject selected = Selection.activeGameObject;
-        //¿À¸®Áö³Î ÇÁ¸®ÆÕ°ú ¿¬°áÀÌ ²÷°Ü¼­ ³»¸¾´ë·Î ¼öÁ¤ÀÌ °¡´É
-        PrefabUtility.UnpackPrefabInstance(selected, PrefabUnpackMode.Completely, InteractionMode.AutomatedAction);
-
-     //1.·¹ÀÌÄ³½ºÆ® ¾ŞÄ¿¸¸µé±â
-        GameObject anchor = EditorHelper.CreateGameObject("RaycastAnchor", selected.transform);
+        //ì˜¤ë¦¬ì§€ë„ í”„ë¦¬íŒ¹ê³¼ ì—°ê²°ì´ ëŠê²¨ì„œ ë‚´ ë§˜ëŒ€ë¡œ ìˆ˜ì •ì´ ê°€ëŠ¥í•©ë‹ˆë‹¤.ì˜ˆë¥¼ë“¤ì–´ ì°¨ì¼ë“œì˜ ì¶”ê°€/ì‚­ì œ ê°™ì€ê±°.
+        PrefabUtility.UnpackPrefabInstance(selected, PrefabUnpackMode.Completely,
+            InteractionMode.AutomatedAction);
+        //1.ë ˆì´ìºìŠ¤íŠ¸ ì•µì»¤ ë§Œë“¤ê³ .
+        GameObject anchor = EditorHelper.CreateGameObject("Raycast Anchor",
+            selected.transform);
         anchor.transform.localPosition = Vector3.zero;
-        anchor.transform.localRotation = Quaternion.identity;
-     //2.½ºÅ©¸³Æ®µé ¼³Á¤
+        anchor.transform.localRotation = quaternion.identity;
+        //2.ìŠ¤í¬ë¦½íŠ¸ë“¤ ì„¤ì •
         VehicleControl vehicleControl = EditorHelper.AddComponent<VehicleControl>(selected);
         vehicleControl.raycastAnchor = anchor.transform;
-     //3.¹ÙÄû ¸Ş½¬ ºÙÀÌ±â
+
+        //3.ë°”í€´ ë©”ì‰¬ ì°¾ì•„ì£¼ê³ ,
         Transform tireBackLeft = selected.transform.Find("Tire BackLeft");
         Transform tireBackRight = selected.transform.Find("Tire BackRight");
         Transform tireFrontLeft = selected.transform.Find("Tire FrontLeft");
-        Transform tireFrontRight= selected.transform.Find("Tire FrontRight");
-        
-     //4.ÈÙ Äİ¶óÀÌ´õ ¼¼ÆÃ
-        GameObject backLeftWheel = EditorHelper.CreateGameObject("TireBackLeft Wheel", selected.transform);
+        Transform tireFrontRight = selected.transform.Find("Tire FrontRight");
+        //4.íœ  ì½œë¼ì´ë” ì„¸íŒ…í•˜ê³ .ë°”í€´ë¥¼ íœ  ì½œë¼ì´ë”ì˜ ì°¨ì¼ë“œë¡œ ë¶™ì—¬ì¤ë‹ˆë‹¤.
+        GameObject backLeftWheel = EditorHelper.CreateGameObject("TireBackLeft Wheel",
+            selected.transform);
         backLeftWheel.transform.position = tireBackLeft.position;
-        GameObject backRightWheel = EditorHelper.CreateGameObject("TireBackRight Wheel", selected.transform);
+        GameObject backRightWheel = EditorHelper.CreateGameObject("TireBackRight Wheel",
+            selected.transform);
         backRightWheel.transform.position = tireBackRight.position;
-        GameObject frontLeftWheel = EditorHelper.CreateGameObject("TireFrontLeft Wheel", selected.transform);
+        GameObject frontLeftWheel = EditorHelper.CreateGameObject("TireFrontLeft Wheel",
+            selected.transform);
         frontLeftWheel.transform.position = tireFrontLeft.position;
-        GameObject frontRightWheel = EditorHelper.CreateGameObject("TireFrontRight Wheel", selected.transform);
+        GameObject frontRightWheel = EditorHelper.CreateGameObject("TireFrontRight Wheel",
+            selected.transform);
         frontRightWheel.transform.position = tireFrontRight.position;
 
         WheelCollider wheelCollider1 = EditorHelper.AddComponent<WheelCollider>(backLeftWheel);
         WheelCollider wheelCollider2 = EditorHelper.AddComponent<WheelCollider>(backRightWheel);
         WheelCollider wheelCollider3 = EditorHelper.AddComponent<WheelCollider>(frontLeftWheel);
         WheelCollider wheelCollider4 = EditorHelper.AddComponent<WheelCollider>(frontRightWheel);
-
         SetupWheelCollider(wheelCollider1);
         SetupWheelCollider(wheelCollider2);
         SetupWheelCollider(wheelCollider3);
@@ -79,54 +84,48 @@ public class VehicleSettingEditor :Editor
         tireFrontLeft.localPosition = Vector3.zero;
         tireFrontRight.parent = frontRightWheel.transform;
         tireFrontRight.localPosition = Vector3.zero;
-
-     //4.5 WheelDriveControl ½ºÅ©¸³Æ® ºÙ¿©ÁÖ±â
+        
+        //4.5 WheelDriveControl ìŠ¤í¬ë¦½íŠ¸ ë¶™ì—¬ì£¼ê¸°.
         WheelDriveControl wheelDriveControl = EditorHelper.AddComponent<WheelDriveControl>(selected);
         wheelDriveControl.Init();
-
-
-     //5.¸®Áöµå¹Ùµğ ¼¼ÆÃ
+        
+        //5.rigidBody ì„¸íŒ….
         Rigidbody rb = selected.GetComponent<Rigidbody>();
         rb.mass = 900f;
         rb.drag = 0.1f;
         rb.angularDrag = 3f;
         rb.collisionDetectionMode = CollisionDetectionMode.ContinuousDynamic;
 
-
-     //6.ÇìµåÄõÅÍ ¿¬°á
+        //6.HeadQuarter ì—°ê²°.
         TrafficHeadquarter headquarter = FindObjectOfType<TrafficHeadquarter>();
-        if(headquarter != null)
+        if (headquarter != null)
         {
             vehicleControl.trafficHeadquarter = headquarter;
         }
 
-        //7.¹Ùµğ Äİ¶óÀÌ´õ ºÙÀÌ±â
+        //7.ë°”ë”” ì½œë¼ì´ë” ë¶™ì—¬ì£¼ê³ 
         BoxCollider boxCollider = EditorHelper.AddComponent<BoxCollider>(selected);
         boxCollider.isTrigger = true;
 
-        GameObject colliders = EditorHelper.CreateGameObject("Colliders", selected.transform);
+        GameObject colliders = EditorHelper.CreateGameObject("Colliders",
+            selected.transform);
         colliders.transform.localPosition = Vector3.zero;
         colliders.transform.localRotation = Quaternion.identity;
         colliders.transform.localScale = Vector3.one;
-
         GameObject Body = EditorHelper.CreateGameObject("Body", colliders.transform);
         Body.transform.localPosition = Vector3.zero;
         Body.transform.localRotation = Quaternion.identity;
         Body.transform.localScale = Vector3.one;
-
         BoxCollider bodyCollider = EditorHelper.AddComponent<BoxCollider>(Body);
         bodyCollider.center = new Vector3(0f, 0.4f, 0f);
         bodyCollider.size = new Vector3(0.95f, 0.54f, 2.0f);
-        //¸¸¾à ·¹ÀÌ¾î°¡ ¾ø´Ù¸é ¿£Áø¿¡ Ãß°¡
+        //8.ë ˆì´ì–´ê¹Œì§€ ìë™ì£¼í–‰ ë ˆì´ì–´. AutonomousVehicle set.
+        //ë§Œì•½ ë ˆì´ì–´ê°€ ì—†ë‹¤ë©´ ì—”ì§„ì— ì¶”ê°€í•©ë‹ˆë‹¤.
         EditorHelper.CreateLayer(TrafficHeadquarter.VehicleTagLayer);
         selected.tag = TrafficHeadquarter.VehicleTagLayer;
-        EditorHelper.SetLayer(selected, LayerMask.NameToLayer(TrafficHeadquarter.VehicleTagLayer),true);
-        //undo ±×·ì ´ÜÀ§·Î ¼¼ÆÃ
-        Undo.CollapseUndoOperations(Undo.GetCurrentGroup());    
-
-
-     //8.·¹ÀÌ¾î±îÁö ÀÚµ¿ÁÖÇà ·¹ÀÌ¾î.AutonomousVehicle set
-
+        EditorHelper.SetLayer(selected, LayerMask.NameToLayer(TrafficHeadquarter.VehicleTagLayer)
+        , true);
+        //undo ê·¸ë£¹ ë‹¨ìœ„ë¡œ ì ìš©.
+        Undo.CollapseUndoOperations(Undo.GetCurrentGroup());
     }
 }
-
